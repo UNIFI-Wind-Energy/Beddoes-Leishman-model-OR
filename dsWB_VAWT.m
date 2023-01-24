@@ -69,6 +69,8 @@ Vrel = sqrt( (V0*cos(theta)+omega*R).^2 + (V0*sin(theta)).^2);
 
 aoa_rate = -omega*(TSR*cos(theta) + 1)./(TSR^2 + 2*TSR*cos(theta) + 1);
 
+theta_rate = -omega;
+
 t = theta./omega;
 
 
@@ -92,7 +94,7 @@ dt=t(2)-t(1);
 
 for i=1:length(t)
             
-    [cn(i), ct(i), cl(i), cd(i), cm(i), f_lag(i), tv(i), comp(i,:), bl(i,:), state] = BL(aoa_f(i), aoa_rate(i), Vrel(i), M, dt,chord, x_AC, calibrationData, polarData, fMode, timeConstantsMod, vortexModule, secondaryVortex, state);
+    [cn(i), ct(i), cl(i), cd(i), cm(i), f_lag(i), tv(i), comp(i,:), bl(i,:), state] = BL(aoa_f(i), aoa_rate(i), theta_rate, Vrel(i), M, dt,chord, x_AC, calibrationData, polarData, fMode, timeConstantsMod, vortexModule, secondaryVortex, state);
 
 end
 

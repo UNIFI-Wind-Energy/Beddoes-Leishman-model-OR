@@ -77,6 +77,7 @@ T = 2*pi/omega;                                                             % pi
 t = linspace(0, N_rev*T, N_rev*N);
 aoa_f= deg2rad(A0) + deg2rad(A1) * sin(omega*t);
 aoa_rate = deg2rad(A1) * omega * cos(omega*t);
+theta_rate = aoa_rate;
 
 % initialize vectors
 
@@ -97,7 +98,7 @@ dt = t(2)-t(1);
 
 for i=1:length(t)
 
-    [cn(i), ct(i), cl(i), cd(i), cm(i), f_lag(i), tv(i), comp(i,:), bl(i,:), state] = BL(aoa_f(i), aoa_rate(i), V, M, dt,chord, x_AC, calibrationData, polarData, fMode, timeConstantsMod, vortexModule, secondaryVortex, state);
+    [cn(i), ct(i), cl(i), cd(i), cm(i), f_lag(i), tv(i), comp(i,:), bl(i,:), state] = BL(aoa_f(i), aoa_rate(i), theta_rate(i), V, M, dt,chord, x_AC, calibrationData, polarData, fMode, timeConstantsMod, vortexModule, secondaryVortex, state);
 
 end
 
