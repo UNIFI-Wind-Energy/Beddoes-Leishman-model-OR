@@ -1,6 +1,6 @@
-function [CN, CC, CL, CD, CM, f_lag, tv_output, comp, bl, state] = BL(alpha, dalphadt,V, M, dt, chord, x_AC, calibrationData, polarData, fMode, timeConstantsMod, vortexModule, secondaryVortex, state)
+function [CN, CC, CL, CD, CM, f_lag, tv_output, comp, bl, state] = BL(alpha, dalphadt, dthetadt, V, M, dt, chord, x_AC, calibrationData, polarData, fMode, timeConstantsMod, vortexModule, secondaryVortex, state)
 
-% BEDDOES-LEISHMAN (OR) Original model - Indicial formulation - v2.2
+% BEDDOES-LEISHMAN (OR) Original model - Indicial formulation - v2.3
 %
 % Closed-loop version
 % Secondary vortex shedding
@@ -24,6 +24,7 @@ f_lag_prev = state(25);
 dfdt = state(26);
 tv = state(27);
 f_LEV = state(28);
+
 
 %% constants from polar data
 
@@ -66,6 +67,7 @@ Tvl = calibrationData(23);                                                  % ch
 Str = calibrationData(24);                                                  % LEV Strouhal number [-]
 Df = calibrationData(25);                                                   % constant in the computation of CC during vortex shedding [-]
 
+
 %% derived quantities
 
 ds = 2*V*dt/chord;                                                          % non-dimensional timestep [-]
@@ -94,7 +96,7 @@ Tv = Tv0;
 
 % attached flow module
 
-[CN_alpha_c, CN_q_c, CN_I, alphaE, CN_lag, alpha_lag, CM_alpha_c, CM_q_c, CM_I, state] = BL_attachedFlow(alpha, dalphadt, V, M, dt, chord, x_AC, alpha0, m_CN, TP, state);
+[CN_alpha_c, CN_q_c, CN_I, alphaE, CN_lag, alpha_lag, CM_alpha_c, CM_q_c, CM_I, state] = BL_attachedFlow(alpha, dthetadt, V, M, dt, chord, x_AC, alpha0, m_CN, TP, state);
 
 CN_C = CN_alpha_c + CN_q_c;
 CM_C = CM_alpha_c + CM_q_c;

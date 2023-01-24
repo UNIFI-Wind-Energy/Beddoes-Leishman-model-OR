@@ -1,4 +1,4 @@
-function [CN_alpha_c, CN_q_c, CN_I, alphaE, CN_lag, alpha_lag, CM_alpha_c, CM_q_c, CM_I, state] = BL_attachedFlow(alpha, dalphadt, V, M, dt, chord, x_AC, alpha0, m_CN, TP, state)
+function [CN_alpha_c, CN_q_c, CN_I, alphaE, CN_lag, alpha_lag, CM_alpha_c, CM_q_c, CM_I, state] = BL_attachedFlow(alpha, dthetadt, V, M, dt, chord, x_AC, alpha0, m_CN, TP, state)
 
 % ATTACHED FLOW MODULE Computes potential unsteady loads in the
 % Beddoes-Leishman dynamic stall model
@@ -42,7 +42,7 @@ b5 = 5.0;
 
 ds = 2*V*dt/chord;                                                          % non-dimensional timestep [-]
 
-q = dalphadt*chord/V;                                                       % non-dimensional pitch rate [-]
+q = dthetadt*chord/V;                                                       % non-dimensional pitch rate [-]
 
 a = V/M;                                                                    % speed of sound [m/s]
 beta = sqrt(1-M^2);                                                         % Glauert compressibility factor [-]
@@ -93,7 +93,7 @@ T_alpha = 0.75 * K_alpha * TI;
 
 D = D_prev * exp(-dt/T_alpha) + (Delta_alpha-Delta_alpha_prev)/dt * exp(-0.5*dt/T_alpha);
 
-CN_alpha_i = 4*T_alpha/M * (dalphadt - D);
+CN_alpha_i = 4*T_alpha/M * (Delta_alpha/dt - D);
 
 % pitch rate change
 
