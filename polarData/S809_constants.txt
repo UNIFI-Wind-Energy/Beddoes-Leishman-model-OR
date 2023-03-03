@@ -1,8 +1,8 @@
-CD0 	0.0051
+CD0	0.0051
 CM0	-0.0255
-alpha0	-0.30
+alpha0	-0.0053
 mCN	5.95
-TP 	1.7
+TP	1.7
 eta	0.87
 F1	0.5
 deltaalpha1	0.0367
@@ -22,4 +22,5 @@ Tf0	3
 Tv0	6
 Tvl	11
 Str	0.19
-Df 	8
+Df	8
+k_CC	-0.07
