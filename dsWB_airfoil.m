@@ -11,7 +11,7 @@ addpath BL
 A0 = 14;                                                                    % harmonic pitch law average value [deg]
 A1 = 10;                                                                    % harmonic pitch law amplitude [deg]
 
-k = 0.077;                                                                  % reduced frequency [-]
+k = 0.026;                                                                  % reduced frequency [-]
 
 % inflow conditions
 
@@ -28,14 +28,14 @@ x_AC = 0.25;                                                                % ai
 N_rev = 10;                                                                 % number of pitching cycles
 N = 180;                                                                    % number of timesteps per cycle
 
-fMode = 'fit';                                                              % handling of the f function: 'fit' use Leishman exponential fitting | 'raw' use data from static polars
+fMode = 'raw';                                                              % handling of the f function: 'fit' use Leishman exponential fitting | 'raw' use data from static polars
 vortexModule = 'on';                                                        % activate LEV module: 'on' | 'off'
 timeConstantsMod = 'on';                                                    % activate modification of time constants due to LEV: 'on' | 'off'
 secondaryVortex ='on';                                                      % activate secondary vortex shedding: 'on' | 'off'
 
 % input data
 
-file_validation = 'reference data/14+10_k0077_M01.txt';                     % reference data
+file_validation = 'reference data/14+10_k0026_M01.txt';                     % reference data
 file_constants = 'polarData/S809_constants.txt';                            % BL model constants
 file_polar = 'polarData/S809_Re1000k_smooth.txt';                           % airfoil polar data
 
@@ -48,11 +48,23 @@ file_polar = 'polarData/S809_Re1000k_smooth.txt';                           % ai
 
 %% initialization
 
-% input polar and calibration data
+% input validation data
 
 validationData = importdata(file_validation);
 
+AOA_val = validationData(:,1);
+CL_val = validationData(:,2);
+CD_val = validationData(:,3);
+CM_val = validationData(:,4);
+
+CN_val =  CL_val .* cosd(AOA_val) + CD_val .* sind(AOA_val);
+CC_val =  CL_val .* sind(AOA_val) - CD_val .* cosd(AOA_val);
+
+% input calibration data
+
 calibrationData = importdata(file_constants).data;
+
+% input polar data
 
 polarData = load(file_polar);
 
@@ -60,6 +72,9 @@ AOA = polarData(:,1);
 CL = polarData(:,2);
 CD = polarData(:,3);
 CM = polarData(:,4);
+
+CN =  CL .* cosd(AOA) + CD .* sind(AOA);
+CC =  CL .* sind(AOA) - CD .* cosd(AOA);
 
 % derived parameters
 
@@ -198,13 +213,13 @@ fig2.Units='normalized';
 fig2.Position=[0.3578    0.6269    0.4036    0.2926];
 
 subplot(121)
-plot(aoa_plot, cn,'-k')
+plot(AOA, CN, '-o', aoa_plot, cn, '-k', AOA_val, CN_val, '-r')
 hold on
 title('CN')
 xlabel('AoA [deg]')
 
 subplot(122)
-plot(aoa_plot, ct,'-k')
+plot(AOA, CC,'-o', aoa_plot, ct, '-k', AOA_val, CC_val, '-r')
 title('CC')
 xlabel('AoA [deg]')
 
@@ -218,19 +233,19 @@ fig3.Position = [0.7729    0.0380    0.2000    0.8833];
 xlimits = [-5 30];
 
 subplot(311)
-plot(AOA, CL, '-o', aoa_plot, cl, '-k', validationData(:,1), validationData(:,2), '-r')
+plot(AOA, CL, '-o', aoa_plot, cl, '-k', AOA_val, CL_val, '-r')
 xlim(xlimits)
 hold on
 title('CL')
 
 subplot(312)
-plot(AOA, CD, '-o',aoa_plot, cd, '-k', validationData(:,1), validationData(:,3), '-r')
+plot(AOA, CD, '-o', aoa_plot, cd, '-k', AOA_val, CD_val, '-r')
 title('CD')
 xlim(xlimits)
 hold on
 
 subplot(313)
-plot(AOA, CM, '-o', aoa_plot, cm, '-k', validationData(:,1), validationData(:,4), '-r')
+plot(AOA, CM, '-o', aoa_plot, cm, '-k', AOA_val, CM_val, '-r')
 hold on
 title('CM')
 xlabel('AoA [deg]')
