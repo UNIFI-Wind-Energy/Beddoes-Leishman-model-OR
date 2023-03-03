@@ -1,6 +1,6 @@
 function [CN, CC, CL, CD, CM, f_lag, tv_output, comp, bl, state] = BL(alpha, dalphadt, dthetadt, V, M, dt, chord, x_AC, calibrationData, polarData, fMode, timeConstantsMod, vortexModule, secondaryVortex, state)
 
-% BEDDOES-LEISHMAN (OR) Original model - Indicial formulation - v2.3
+% BEDDOES-LEISHMAN (OR) Original model - Indicial formulation - v2.4
 %
 % Closed-loop version
 % Secondary vortex shedding
@@ -66,7 +66,7 @@ Tv0 = calibrationData(22);                                                  % ti
 Tvl = calibrationData(23);                                                  % characteristic time in semi-chordsrequired to the LEV to go from LE to TE [-]
 Str = calibrationData(24);                                                  % LEV Strouhal number [-]
 Df = calibrationData(25);                                                   % constant in the computation of CC during vortex shedding [-]
-
+k_CC = calibrationData(26);                                                   % constant in the computation of CC during vortex shedding [-]
 
 %% derived quantities
 
@@ -131,7 +131,7 @@ if (strcmp(vortexModule,'on') && abs(CN_lag) >= CN1)
 
     [CN_v, CM_v, Tv, state] = BL_vortexShedding(alpha, dalphadt, CN_C, CN_f, dt, ds, tv, Tv0, Tvl, timeConstantsMod, state);
 
-    CC_f = CC_f * f_lag^(Df*(abs(CN_lag)-CN1));
+    CC_f = k_CC + CC_f * f_lag^( Df*(abs(CN_lag)-CN1) + (f_lag-f) );
 
     tv = tv + ds;
 
