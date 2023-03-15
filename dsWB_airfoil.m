@@ -11,7 +11,7 @@ addpath BL
 A0 = 14;                                                                    % harmonic pitch law average value [deg]
 A1 = 10;                                                                    % harmonic pitch law amplitude [deg]
 
-k = 0.026;                                                                  % reduced frequency [-]
+k = 0.077;                                                                  % reduced frequency [-]
 
 % inflow conditions
 
@@ -28,6 +28,7 @@ x_AC = 0.25;                                                                % ai
 N_rev = 10;                                                                 % number of pitching cycles
 N = 180;                                                                    % number of timesteps per cycle
 
+formulation = 'incompressible';                                             % formulation of the attached flow module: incompressible | compressible
 fMode = 'raw';                                                              % handling of the f function: 'fit' use Leishman exponential fitting | 'raw' use data from static polars
 vortexModule = 'on';                                                        % activate LEV module: 'on' | 'off'
 timeConstantsMod = 'on';                                                    % activate modification of time constants due to LEV: 'on' | 'off'
@@ -35,7 +36,7 @@ secondaryVortex ='on';                                                      % ac
 
 % input data
 
-file_validation = 'reference data/14+10_k0026_M01.txt';                     % reference data
+file_validation = 'reference data/14+10_k0077_M01.txt';                     % reference data
 file_constants = 'polarData/S809_constants.txt';                            % BL model constants
 file_polar = 'polarData/S809_Re1000k_smooth.txt';                           % airfoil polar data
 
@@ -93,6 +94,7 @@ t = linspace(0, N_rev*T, N_rev*N);
 aoa_f= deg2rad(A0) + deg2rad(A1) * sin(omega*t);
 aoa_rate = deg2rad(A1) * omega * cos(omega*t);
 theta_rate = aoa_rate;
+h_rate = aoa_rate * 0.0;
 
 % initialize vectors
 
@@ -113,7 +115,7 @@ dt = t(2)-t(1);
 
 for i=1:length(t)
 
-    [cn(i), ct(i), cl(i), cd(i), cm(i), f_lag(i), tv(i), comp(i,:), bl(i,:), state] = BL(aoa_f(i), aoa_rate(i), theta_rate(i), V, M, dt,chord, x_AC, calibrationData, polarData, fMode, timeConstantsMod, vortexModule, secondaryVortex, state);
+    [cn(i), ct(i), cl(i), cd(i), cm(i), f_lag(i), tv(i), comp(i,:), bl(i,:), state] = BL(aoa_f(i), aoa_rate(i), theta_rate(i), h_rate(i), V, M, dt, chord, x_AC, calibrationData, polarData, formulation, fMode, timeConstantsMod, vortexModule, secondaryVortex, state);
 
 end
 

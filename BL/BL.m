@@ -1,6 +1,6 @@
-function [CN, CC, CL, CD, CM, f_lag, tv_output, comp, bl, state] = BL(alpha, dalphadt, dthetadt, V, M, dt, chord, x_AC, calibrationData, polarData, fMode, timeConstantsMod, vortexModule, secondaryVortex, state)
+function [CN, CC, CL, CD, CM, f_lag, tv_output, comp, bl, state] = BL(alpha, dalphadt, dthetadt, dhdt, V, M, dt, chord, x_AC, calibrationData, polarData, formulation, fMode, timeConstantsMod, vortexModule, secondaryVortex, state)
 
-% BEDDOES-LEISHMAN (OR) Original model - Indicial formulation - v2.4
+% BEDDOES-LEISHMAN (OR) Original model - Indicial formulation - v2.5
 %
 % Closed-loop version
 % Secondary vortex shedding
@@ -96,7 +96,15 @@ Tv = Tv0;
 
 % attached flow module
 
-[CN_alpha_c, CN_q_c, CN_I, alphaE, CN_lag, alpha_lag, CM_alpha_c, CM_q_c, CM_I, state] = BL_attachedFlow(alpha, dthetadt, V, M, dt, chord, x_AC, alpha0, m_CN, TP, state);
+if(strcmp(formulation,'compressible'))
+
+    [CN_alpha_c, CN_q_c, CN_I, alphaE, CN_lag, alpha_lag, CM_alpha_c, CM_q_c, CM_I, state] = BL_attachedFlow(alpha, dthetadt, V, M, dt, chord, x_AC, alpha0, m_CN, TP, state);
+
+elseif(strcmp(formulation,'incompressible'))
+
+    [CN_alpha_c, CN_q_c, CN_I, alphaE, CN_lag, alpha_lag, CM_alpha_c, CM_q_c, CM_I, state] = BL_attachedFlow_incompressible(alpha, dthetadt, dhdt, V, dt, chord, x_AC, alpha0, m_CN, TP, state);
+
+end
 
 CN_C = CN_alpha_c + CN_q_c;
 CM_C = CM_alpha_c + CM_q_c;

@@ -25,6 +25,7 @@ TSR = 4;
 N_rev = 10;                                                                 % number of pitching cycles
 N = 180;                                                                    % number of timesteps per cycle
 
+formulation = 'incompressible';                                             % formulation of the attached flow module: incompressible | compressible
 fMode = 'fit';                                                              % handling of the f function: 'fit' use Leishman exponential fitting | 'raw' use data from static polars
 vortexModule = 'on';                                                        % activate LEV module
 timeConstantsMod = 'on';                                                    % activate modification of time constants due to LEV
@@ -32,9 +33,9 @@ secondaryVortex ='on';                                                      % ac
 
 % input data
 
-file_validation = 'reference data/LC89/15+10_k01_M03.txt';                  % reference data
-file_constants = 'polarData/NACA0012_LC89_M03.txt';                         % BL model constants
-file_polar = 'polarData/S809_Re1000k.txt';                                  % airfoil polar data
+file_validation = 'reference data/14+10_k0077_M01.txt';                     % reference data
+file_constants = 'polarData/S809_constants.txt';                            % BL model constants
+file_polar = 'polarData/S809_Re1000k_smooth.txt';                           % airfoil polar data
 
 % ------------------------------------------------------------------------
 
@@ -71,6 +72,8 @@ aoa_rate = -omega*(TSR*cos(theta) + 1)./(TSR^2 + 2*TSR*cos(theta) + 1);
 
 theta_rate = -omega;
 
+h_rate = aoa_rate*0.0;
+
 t = theta./omega;
 
 
@@ -94,7 +97,7 @@ dt=t(2)-t(1);
 
 for i=1:length(t)
             
-    [cn(i), ct(i), cl(i), cd(i), cm(i), f_lag(i), tv(i), comp(i,:), bl(i,:), state] = BL(aoa_f(i), aoa_rate(i), theta_rate, Vrel(i), M, dt,chord, x_AC, calibrationData, polarData, fMode, timeConstantsMod, vortexModule, secondaryVortex, state);
+    [cn(i), ct(i), cl(i), cd(i), cm(i), f_lag(i), tv(i), comp(i,:), bl(i,:), state] = BL(aoa_f(i), aoa_rate(i), theta_rate, h_rate(i), Vrel(i), M, dt,chord, x_AC, calibrationData, polarData, formulation, fMode, timeConstantsMod, vortexModule, secondaryVortex, state);
 
 end
 
