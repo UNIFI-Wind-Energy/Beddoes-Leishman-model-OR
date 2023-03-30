@@ -1,6 +1,6 @@
 function [CN, CC, CL, CD, CM, f_lag, tv_output, comp, bl, state] = BL(alpha, dalphadt, dthetadt, dhdt, V, M, dt, chord, x_AC, calibrationData, polarData, formulation, fMode, timeConstantsMod, vortexModule, secondaryVortex, state)
 
-% BEDDOES-LEISHMAN (OR) Original model - Indicial formulation - v2.5
+% BEDDOES-LEISHMAN (OR) Original model - Indicial formulation - v2.5.1
 %
 % Closed-loop version
 % Secondary vortex shedding

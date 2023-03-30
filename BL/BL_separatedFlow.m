@@ -11,7 +11,7 @@ CN_f = CN_C * ( (1+sqrt(f_lag))/2 )^2;
 
 % tangential load
 
-CC_f = eta * m_CN * (alphaE-alpha0) * tan(alphaE+alpha0) * sqrt(f_lag);
+CC_f = eta * m_CN * (alphaE-alpha0) * tan(alphaE) * sqrt(f_lag);
 
 % pitching moment
     
