@@ -36,7 +36,7 @@ b3 = 0.25;
 A4 = -0.5;
 b4 = 0.1;
 A5 = 1;
-b5 = 5.0;
+b5 = 0.5;
 
 % derived quantities
 
@@ -143,10 +143,10 @@ CM_q_c= -m_CN/16 * (q - X3);
 
 KalphaM = (A3*b4+A4*b3) / (b3*b4*(1-M));
 
-X4 = X4_prev * exp(-dt/(b3*KalphaM*TI)) + A3 * Delta_alpha * exp(-0.5*dt/(b3*KalphaM*TI));
-Y4 = Y4_prev * exp(-dt/(b4*KalphaM*TI)) + A4 * Delta_alpha * exp(-0.5*dt/(b4*KalphaM*TI));
+X4 = X4_prev * exp(-dt/(b3*KalphaM*TI)) + (Delta_alpha-Delta_alpha_prev)/dt * exp(-0.5*dt/(b3*KalphaM*TI));
+Y4 = Y4_prev * exp(-dt/(b4*KalphaM*TI)) + (Delta_alpha-Delta_alpha_prev)/dt * exp(-0.5*dt/(b4*KalphaM*TI));
 
-CM_alpha_i = - 1/M * (X4+Y4); 
+CM_alpha_i = - 1/M * ( A3 * (b3*KalphaM*TI) * (Delta_alpha/dt-X4) + A4 * (b4*KalphaM*TI) * (Delta_alpha/dt-Y4) ); 
 
 % pitch rate change
 
