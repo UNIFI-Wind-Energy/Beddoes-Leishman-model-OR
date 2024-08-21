@@ -1,4 +1,4 @@
-function [CN_alpha_c, CN_q_c, CN_I, alphaE, CN_lag, alpha_lag, CM_alpha_c, CM_q_c, CM_I, state] = BL_attachedFlow_incompressible(alpha, dthetadt, dhdt, V, dt, chord, x_AC, alpha0, m_CN, TP, state)
+function [CN_alpha_c, CN_q_c, CN_I, CN_lag, alpha_lag, CC, CM_alpha_c, CM_q_c, CM_I, state] = BL_attachedFlow_incompressible(alpha, dthetadt, dhdt, V, dt, chord, x_AC, alpha0, m_CN, TP, A1, b1, A2, b2, state)
 
 % ATTACHED FLOW MODULE Computes potential unsteady loads in the
 % Beddoes-Leishman dynamic stall model
@@ -17,13 +17,6 @@ Y2_prev = state(9);
 
 DP_prev = state(15);
 CN_prev = state(16);
-
-% calibration constants
-
-A1 = 0.165;
-b1 = 0.0455;
-A2 = 0.335;
-b2 = 0.3;
 
 % derived quantities
 
@@ -82,6 +75,11 @@ DP = DP_prev *  exp(-ds/TP) + (CN-CN_prev) * exp(-0.5*ds/TP);
 CN_lag = CN - DP;
 
 alpha_lag = alpha0 + CN_lag/m_CN;
+
+
+%% -------------------------------------------------------------------------- CC
+    
+CC = m_CN * (alphaE - alpha0) * tan(alphaE);
 
 
 %% -------------------------------------------------------------------------- CM

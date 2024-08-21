@@ -38,7 +38,7 @@ secondaryVortex ='on';                                                      % ac
 
 file_validation = 'reference data/14+10_k0077_M01.txt';                     % reference data
 file_constants = 'polarData/S809_constants.txt';                            % BL model constants
-file_polar = 'polarData/S809_Re1000k_smooth.txt';                           % airfoil polar data
+file_polar = 'polarData/S809_Re1000k.txt';                           % airfoil polar data
 
 % ------------------------------------------------------------------------
 
@@ -160,7 +160,7 @@ ylim([0 1])
 grid on
 
 subplot(8,1,4)
-plot(t/T, tv/calibrationData(23),'-k')
+plot(t/T, tv/calibrationData(33),'-k')
 hold on
 title('tv/Tvl')
 xlim(xlimits)

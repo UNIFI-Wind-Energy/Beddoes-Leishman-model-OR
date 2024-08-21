@@ -21,7 +21,7 @@ f = zeros(length(AOA),1);
 
 for i=1:length(AOA)
 
-    f(i) = (2 * sqrt( CN(i)./(m_CN*(AOA(i)-alpha_0)-0.0001) ) - 1).^2;
+    f(i) = (2 * sqrt( abs(CN(i)./(m_CN*(AOA(i)-alpha_0)+1e-6)) ) - 1).^2;
 
     % apply boundaries saturation - f c [0 1]
 
