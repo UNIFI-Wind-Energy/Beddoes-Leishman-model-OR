@@ -1,4 +1,4 @@
-function [CN_alpha_c, CN_q_c, CN_I, CN_lag, alpha_lag, CC, CM_alpha_c, CM_q_c, CM_I, state] = BL_attachedFlow_incompressible(alpha, dthetadt, dhdt, V, dt, chord, x_AC, alpha0, m_CN, TP, A1, b1, A2, b2, state)
+function [CN_C, CN_I, CN_lag, alpha_lag, CC, CM_alpha_c, CM_q_c, CM_I, ds, state] = BL_attachedFlow_incompressible(alpha, theta_dot, V, dt, chord, bsc, x_AC, alpha0, m_CN, TP, A1, b1, A2, b2, state)
 
 % ATTACHED FLOW MODULE Computes potential unsteady loads in the
 % Beddoes-Leishman dynamic stall model
@@ -8,60 +8,54 @@ function [CN_alpha_c, CN_q_c, CN_I, CN_lag, alpha_lag, CC, CM_alpha_c, CM_q_c, C
 % update state
 
 alpha_prev = state(1);
-q_prev = state(2);
-dhdt_prev = state(3);
-X1_prev = state(5);
-Y1_prev = state(6);
-X2_prev = state(8);
-Y2_prev = state(9);
+theta_dot_prev = state(2);
+V_prev = state(3);
+X1_prev = state(4);
+Y1_prev = state(5);
+w_34_prev = state(6);
 
 DP_prev = state(15);
 CN_prev = state(16);
 
 % derived quantities
 
-ds = 2*V*dt/chord;                                                          % non-dimensional timestep [-]
-
-q = dthetadt*chord/V;                                                       % non-dimensional pitch rate [-]
+ds = (V+V_prev)*dt/chord;                                                          % non-dimensional timestep [-]
 
 Delta_alpha = alpha - alpha_prev;
-Delta_q = q - q_prev;
-Delta_h = dhdt - dhdt_prev;
+Delta_theta_dot = theta_dot - theta_dot_prev;
+Delta_V = V - V_prev;
 
 
 %% -------------------------------------------------------------------------- CN
 
 % ---------------------circulatory part
 
-% angle of attack change
+% relative downwash at 3/4 chord 
+    
+w_34 = V * alpha - (bsc - 0.75) * chord * theta_dot;
 
-X1 = X1_prev * exp(-b1*ds) + A1 * Delta_alpha * exp(-0.5*b1*ds);
+% deficiency functions - shed vorticity effect
 
-Y1 = Y1_prev * exp(-b2*ds) + A2 * Delta_alpha * exp(-0.5*b2*ds);
+Delta_w_34 = w_34 - w_34_prev;
 
-CN_alpha_c = m_CN * (alpha - X1 - Y1 - alpha0);
+X1 = X1_prev * exp(-b1*ds) + A1 * Delta_w_34 * exp(-0.5*b1*ds);
+Y1 = Y1_prev * exp(-b2*ds) + A2 * Delta_w_34 * exp(-0.5*b2*ds);
 
-% pitch rate change
+w_34_E = w_34 - X1 - Y1;
 
-X2 = X2_prev * exp(-b1*ds) + A1 * Delta_q * exp(-0.5*b1*ds);
+% effective angle of attack at 3/4 chord -> circulatory loads computation
 
-Y2 = Y2_prev * exp(-b2*ds) + A2 * Delta_q * exp(-0.5*b2*ds);
+alphaE = w_34_E / V;
 
-qE = q - X2 - Y2;
-
-CN_q_c = 0.5 * m_CN * qE;
-
-% normal load
-
-CN_C = CN_alpha_c + CN_q_c;
-
-% effective angle of attack at 3/4 chord -> computation of CC
-
-alphaE = (alpha - X1 - Y1) + qE/2;
+CN_C = m_CN * (alphaE - alpha0);
 
 %--------------------- impulsive part
 
-CN_I = m_CN/2 * (Delta_alpha/ds + 1/V * Delta_h/ds + 0.25 * Delta_q/ds);
+% relative downwash acceleration at 1/2 chord
+
+w_12_dot = V * Delta_alpha/dt + alpha * Delta_V/dt - (bsc - 0.5) * chord * Delta_theta_dot/dt;
+
+CN_I = m_CN/4 * chord * w_12_dot/V^2;
 
 % ------------------------- total load
 
@@ -88,29 +82,28 @@ CC = m_CN * (alphaE - alpha0) * tan(alphaE);
 
 % angle of attack change
 
-CM_alpha_c = (0.25-x_AC) * CN_alpha_c; 
+CM_alpha_c = (0.25 - x_AC) * CN_C; 
 
-% pitch rate change
+% pitch rate (virtual camber) component
 
-CM_q_c = -m_CN/8 * q/2; 
+CM_q_c = - m_CN/16 * chord/V * theta_dot;
 
 % ------------------------- impulsive part
 
-CM_I = -m_CN/8 * ( Delta_alpha/ds + 2/V * Delta_h/ds + 5/8 * Delta_q/ds );
+CM_I = - 0.25 * CN_I - m_CN/128 * chord^2 / V^2 * Delta_theta_dot/dt;
 
 
 %% update previous timestep
 
-% [              1   2      3          4   5  6  7 8  9  10 11 12 13  14 15 16]
-% [            alpha q Delta_alpha Delta_q X1 Y1 D X2 Y2 Dq X3 X4 Y4 DMq DP CN];
+% [  1        2     3  4  5  6  7  8  9  10 11 12 13  15 16]
+% [alpha theta_dot  V  X1 Y1 w_34                     DP CN]
 
 state(1) = alpha;
-state(2) = q;
-state(3) = dhdt;
-state(5) = X1;
-state(6) = Y1;
-state(8) = X2;
-state(9) = Y2;
+state(2) = theta_dot;
+state(3) = V;
+state(4) = X1;
+state(5) = Y1;
+state(6) = w_34;
 state(15) = DP;
 state(16) = CN;
 
