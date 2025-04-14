@@ -8,10 +8,12 @@ addpath BL
 
 % pitch law
 
-A0 = 14;                                                                    % harmonic pitch law average value [deg]
-A1 = 10;                                                                    % harmonic pitch law amplitude [deg]
+A0 = 1;                                                                    % harmonic pitch law average value [deg]
+A1 = 1;                                                                    % harmonic pitch law amplitude [deg]
 
-k = 0.077;                                                                  % reduced frequency [-]
+k = 0.2;                                                                   % reduced frequency [-]
+
+lambda_V = 0.8;                                                            % non-dimensional inflow velocity oscillation amplitude [-]
 
 % inflow conditions
 
@@ -22,6 +24,7 @@ T0 = 298.15;                                                                % fr
 
 chord = 0.457;                                                              % airfoil chord [m]
 x_AC = 0.25;                                                                % airfoil aerodynamic center [x/c] - depends on Mach
+bsc = 0.25;                                     
 
 % numerical set-up
 
@@ -37,7 +40,7 @@ secondaryVortex ='on';                                                      % ac
 % input data
 
 file_validation = 'reference data/14+10_k0077_M01.txt';                     % reference data
-file_constants = 'polarData/S809_constants.txt';                            % BL model constants
+file_constants = 'polarData/flatplate_constants.txt';                            % BL model constants
 file_polar = 'polarData/S809_Re1000k.txt';                           % airfoil polar data
 
 % ------------------------------------------------------------------------
@@ -80,9 +83,9 @@ CC =  CL .* sind(AOA) - CD .* cosd(AOA);
 % derived parameters
 
 a = sqrt(1.4*287*T0);                                                       % freestream speed of sound [m/s] 
-V = M*a;                                                                    % freestream velocity [m/s]
+V0 = M*a;                                                                    % freestream velocity [m/s]
 
-omega = (2*k*V)/chord;                                                      % pitching pulsation [1/rad]
+omega = (2*k*V0)/chord;                                                      % pitching pulsation [1/rad]
 T = 2*pi/omega;                                                             % pitching period [s]
 
 
@@ -95,6 +98,10 @@ aoa_f= deg2rad(A0) + deg2rad(A1) * sin(omega*t);
 aoa_rate = deg2rad(A1) * omega * cos(omega*t);
 theta_rate = aoa_rate;
 h_rate = aoa_rate * 0.0;
+
+% generate inflow law
+
+V = V0 * (1 + lambda_V*sin(omega*t));
 
 % initialize vectors
 
@@ -115,7 +122,7 @@ dt = t(2)-t(1);
 
 for i=1:length(t)
 
-    [cn(i), ct(i), cl(i), cd(i), cm(i), f_lag(i), tv(i), comp(i,:), bl(i,:), state] = BL(aoa_f(i), aoa_rate(i), theta_rate(i), h_rate(i), V, M, dt, chord, x_AC, calibrationData, polarData, formulation, fMode, timeConstantsMod, vortexModule, secondaryVortex, state);
+    [cn(i), ct(i), cl(i), cd(i), cm(i), f_lag(i), tv(i), comp(i,:), bl(i,:), state] = BL(aoa_f(i), aoa_rate(i), theta_rate(i), V(i), M, dt, chord, bsc, x_AC, calibrationData, polarData, formulation, fMode, timeConstantsMod, vortexModule, secondaryVortex, state);
 
 end
 
