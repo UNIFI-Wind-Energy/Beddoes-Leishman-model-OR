@@ -12,6 +12,8 @@ import pandas as pd
 
 import BL
 
+plt.close('all')
+
 # ------------------------------------------------------------------------ INPUT
 
 # pitch law
@@ -19,7 +21,9 @@ import BL
 A0 = 14                                                                         # harmonic pitch law average value [deg]
 A1 = 10                                                                         # harmonic pitch law amplitude [deg]
 
-k = 0.077                                                                       # reduced frequency [-]
+k = 0.077                                                                        # reduced frequency [-]
+
+lambda_V = 0.0                                                                 # non-dimensional inflow velocity oscillation amplitude [-]
 
 # inflow conditions
 
@@ -30,13 +34,14 @@ T0 = 298.15                                                                     
 
 chord = 0.457                                                                   # airfoil chord [m]
 x_AC = 0.25                                                                     # airfoil aerodynamic center [x/c] - depends on Mach
+bsc = 0.25                                                                      # airfoil axis of rotation [x/c]
 
 # numerical set-up
 
 N_rev = 10                                                                      # number of pitching cycles
 N = 180                                                                         # number of timesteps per cycle
 
-formulation = 'compressible'                                                    # formulation of the attached flow module: incompressible | compressible
+formulation = 'incompressible'                                                    # formulation of the attached flow module: incompressible | compressible
 fMode = 'raw'                                                                   # handling of the f function: 'fit' use Leishman exponential fitting | 'raw' use data from static polars
 vortexModule = 'on'                                                             # activate LEV module: 'on' | 'off'
 timeConstantsMod = 'on'                                                         # activate modification of time constants due to LEV: 'on' | 'off'
@@ -87,9 +92,9 @@ CC =  CL * np.sin(np.deg2rad(AOA)) - CD * np.cos(np.deg2rad(AOA))
 # derived parameters
 
 a = np.sqrt(1.4*287*T0)                                                        # freestream speed of sound [m/s] 
-V = M*a                                                                        # freestream velocity [m/s]
+V0 = M*a                                                                        # freestream velocity [m/s]
 
-omega = (2*k*V)/chord                                                          # pitching pulsation [1/rad]
+omega = (2*k*V0)/chord                                                          # pitching pulsation [1/rad]
 T = 2*np.pi/omega                                                              # pitching period [s]
 
 
@@ -98,10 +103,15 @@ T = 2*np.pi/omega                                                              #
 # generate pitch law
 
 t = np.linspace(0, N_rev*T, N_rev*N) 
+
 aoa_f= np.deg2rad(A0) + np.deg2rad(A1) * np.sin(omega*t) 
 aoa_rate = np.deg2rad(A1) * omega * np.cos(omega*t) 
+
 theta_rate = aoa_rate 
-h_rate = aoa_rate * 0.0 
+
+# generate inflow law
+
+V = V0 * (1 + lambda_V * np.sin(omega*t)) 
 
 # initialize vectors
 
@@ -112,7 +122,7 @@ ct = np.zeros(len(t))
 cm = np.zeros(len(t)) 
 f_lag = np.zeros(len(t)) 
 tv = np.zeros(len(t)) 
-comp = np.zeros((len(t),8)) 
+comp = np.zeros((len(t),7)) 
 bl = np.zeros((len(t),6)) 
 state = np.zeros(28) 
 
@@ -122,7 +132,7 @@ dt = t[1]-t[0]
 
 for i in range(len(t)):
 
-    cn[i], ct[i], cl[i], cd[i], cm[i], f_lag[i], tv[i], comp[i,:], bl[i,:], state = BL.BL(aoa_f[i], aoa_rate[i], theta_rate[i], h_rate[i], V, M, dt, chord, x_AC, calibrationData, polarData, formulation, fMode, timeConstantsMod, vortexModule, secondaryVortex, state) 
+    cn[i], ct[i], cl[i], cd[i], cm[i], f_lag[i], tv[i], comp[i,:], bl[i,:], state = BL.BL(aoa_f[i], aoa_rate[i], theta_rate[i], V[i], M, dt, chord, bsc, x_AC, calibrationData, polarData, formulation, fMode, timeConstantsMod, vortexModule, secondaryVortex, state) 
 
 
 ## plot data
@@ -238,3 +248,4 @@ for ax in axs3:
 P = np.column_stack((aoa_plot, cn, ct, cd, cm))
 
 pd.DataFrame(data=P, columns=['AOA','CL','CD','CM', 'CC']).to_csv('Output/' +'Results.dat', index=False, sep='\t', mode='w', float_format='%-15.4g' )
+

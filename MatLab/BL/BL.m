@@ -1,6 +1,6 @@
-function [CN, CC, CL, CD, CM, f_lag, tv_output, comp, bl, state] = BL(alpha, dalphadt, dthetadt, dhdt, V, M, dt, chord, x_AC, calibrationData, polarData, formulation, fMode, timeConstantsMod, vortexModule, secondaryVortex, state)
+function [CN, CC, CL, CD, CM, f_lag, tv_output, comp, bl, state] = BL(alpha, dalphadt, dthetadt, V, M, dt, chord, bsc, x_AC, calibrationData, polarData, formulation, fMode, timeConstantsMod, vortexModule, secondaryVortex, state)
 
-% BEDDOES-LEISHMAN (OR) Original model - Indicial formulation - v2.5.3
+% BEDDOES-LEISHMAN (OR) Original model - Indicial formulation - v2.6
 %
 % Closed-loop version
 % Secondary vortex shedding
@@ -109,15 +109,16 @@ Tv = Tv0;
 
 if(strcmp(formulation,'compressible'))
 
-    [CN_alpha_c, CN_q_c, CN_I, CN_lag, alpha_lag, CC_pot, CM_alpha_c, CM_q_c, CM_I, state] = BL_attachedFlow(alpha, dthetadt, V, M, dt, chord, x_AC, alpha0, m_CN, TP, A1, b1, A2, b2, A3, b3, A4, b4, A5, b5, state);
+    [CN_alpha_c, CN_q_c, CN_I, CN_lag, alpha_lag, CC_pot, CM_alpha_c, CM_q_c, CM_I, state] = BL_attachedFlow(alpha, V, M, dt, chord, x_AC, alpha0, m_CN, TP, A1, b1, A2, b2, A3, b3, A4, b4, A5, b5, state);
+
+    CN_C = CN_alpha_c + CN_q_c;
 
 elseif(strcmp(formulation,'incompressible'))
 
-    [CN_alpha_c, CN_q_c, CN_I, CN_lag, alpha_lag, CC_pot, CM_alpha_c, CM_q_c, CM_I, state] = BL_attachedFlow_incompressible(alpha, dthetadt, dhdt, V, dt, chord, x_AC, alpha0, m_CN, TP, A1, b1, A2, b2, state);
+    [CN_C, CN_I, CN_lag, alpha_lag, CC_pot, CM_alpha_c, CM_q_c, CM_I, ds, state] = BL_attachedFlow_incompressible(alpha, dthetadt, V, dt, chord, bsc, x_AC, alpha0, m_CN, TP, A1, b1, A2, b2, state);
 
 end
 
-CN_C = CN_alpha_c + CN_q_c;
 CM_C = CM_alpha_c + CM_q_c;
 
 % compute characteristics of unsteady boundary layer
